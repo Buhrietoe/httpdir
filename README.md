@@ -5,5 +5,5 @@ Simple pure golang app to serve files over HTTP from the current working directo
 
 Usage:
 
-    httpdir [bind address]:<port>
+    httpdir <bind address>:<port>
 

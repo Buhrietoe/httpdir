@@ -19,15 +19,14 @@ CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags '-w -s' -o target/httpdi
 file target/httpdir-arm64
 echo
 echo Windows 32bit
-CGO_ENABLED=0 GOOS=windows GOARCH=386 go build -o target/httpdir.exe .
+CGO_ENABLED=0 GOOS=windows GOARCH=386 go build -ldflags '-w -s' -o target/httpdir.exe .
 file target/httpdir.exe
 echo
 echo Windows 64bit
-CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o target/httpdir64.exe .
+CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags '-w -s' -o target/httpdir64.exe .
 file target/httpdir64.exe
 echo
 echo OSX 64bit
-CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o target/httpdir-osx .
+CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags '-w -s' -o target/httpdir-osx .
 file target/httpdir-osx
-
 

@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	_ "net/http/pprof"
 	"os"
 )
 
@@ -23,5 +22,8 @@ func main() {
 	}
 
 	log.Printf("Serving from: %s", listenString)
-	panic(http.ListenAndServe(listenString, logger(http.FileServer(http.Dir("./")))))
+	err := http.ListenAndServe(listenString, logger(http.FileServer(http.Dir("./"))))
+	if err != nil {
+		log.Fatalln(err)
+	}
 }

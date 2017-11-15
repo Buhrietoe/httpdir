@@ -26,8 +26,9 @@ func main() {
 		serveDir, _ = filepath.Abs(os.Args[2])
 	}
 
-	log.Printf("Serving from: %s", serveDir)
+	log.Printf("Usage: %s [address:port] [directory]", filepath.Base(os.Args[0]))
 	log.Printf("Listening on: %s", listenString)
+	log.Printf("Serving from: %s", serveDir)
 	err := http.ListenAndServe(listenString, logger(http.FileServer(http.Dir(serveDir))))
 	if err != nil {
 		log.Fatalln(err)

@@ -1,9 +1,14 @@
 httpdir
 =====
 
-Simple pure golang app to serve files over HTTP from the current working directory. Useful for standing up a quick server to make files available remotely.
+Simple HTTP server for static files. Intended for short-term use similar to python's built in "python -m SimpleHTTPServer".
 
 Usage:
 
-    httpdir <bind address>:<port>
+    httpdir [address:port] [directory]
+
+Roadmap:
+- POST
+- PUT
+- DELETE
 

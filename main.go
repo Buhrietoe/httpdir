@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -25,8 +26,13 @@ func thing() http.Handler {
 			w.Write([]byte("My url: " + r.RequestURI + "\n"))
 		case "POST":
 			w.WriteHeader(http.StatusAccepted)
-			w.Write([]byte("thanks\n"))
+			buf, _ := ioutil.ReadAll(r.Body)
+			w.Write(buf)
 		case "PUT":
+			w.WriteHeader(http.StatusCreated)
+			buf, _ := ioutil.ReadAll(r.Body)
+			w.Write(buf)
+		case "FILE":
 			newfile := filepath.Base(r.RequestURI)
 			out, err := os.Create(newfile)
 			if err != nil {

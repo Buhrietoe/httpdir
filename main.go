@@ -23,17 +23,19 @@ func logger(next http.Handler) http.Handler {
 	})
 }
 
-// fileParse handles file requests
-func fileParse() http.Handler {
+// thing does a thing
+func thing() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":
-			w.Write([]byte("hello"))
-			//return http.FileServer(http.Dir("."))
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("My url: " + r.RequestURI + "\n"))
 		case "POST":
-			w.Write([]byte("I don't want this no mo"))
+			w.WriteHeader(http.StatusAccepted)
+			w.Write([]byte("thanks\n"))
 		default:
-			w.Write([]byte("Uuhhh..."))
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Uuhhh...\n"))
 		}
 	})
 }
@@ -59,14 +61,19 @@ func main() {
 		serveDir, _ = filepath.Abs(os.Args[2])
 	}
 
+	// Start info
 	log.Printf("Usage: %s [address:port] [directory]", filepath.Base(os.Args[0]))
 	log.Printf("Listening on: %s", listenString)
 	log.Printf("Serving from: %s", serveDir)
 
-	//fp := http.HandlerFunc(fileParse)
-	http.Handle("files/", fileParse)
-	http.Handle("/", http.FileServer(http.Dir(serveDir)))
-	err = http.ListenAndServe(listenString, logger(http.DefaultServeMux))
+	// Map routes
+	mux := http.NewServeMux()
+	fs := http.FileServer(http.Dir(serveDir))
+	mux.Handle("/files/", http.StripPrefix("/files/", fs))
+	mux.Handle("/", thing())
+
+	// Serve it up
+	err = http.ListenAndServe(listenString, logger(mux))
 	if err != nil {
 		log.Fatalln(err)
 	}

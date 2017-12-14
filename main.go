@@ -1,7 +1,7 @@
 package main
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -12,13 +12,6 @@ import (
 func logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s %s %s", r.RemoteAddr, r.Method, r.URL)
-		if r.Method == "PUT" || r.Method == "POST" {
-			body, err := ioutil.ReadAll(r.Body)
-			if err != nil {
-				log.Fatalf("Error reading request body: %s", err)
-			}
-			log.Println(string(body))
-		}
 		next.ServeHTTP(w, r)
 	})
 }
@@ -33,6 +26,19 @@ func thing() http.Handler {
 		case "POST":
 			w.WriteHeader(http.StatusAccepted)
 			w.Write([]byte("thanks\n"))
+		case "PUT":
+			newfile := filepath.Base(r.RequestURI)
+			out, err := os.Create(newfile)
+			if err != nil {
+				log.Println(err)
+			}
+			defer out.Close()
+
+			if _, err := io.Copy(out, r.Body); err != nil {
+				log.Println("Things happened during upload...")
+			}
+			out.Sync()
+			w.WriteHeader(http.StatusCreated)
 		default:
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Uuhhh...\n"))

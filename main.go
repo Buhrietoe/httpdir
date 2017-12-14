@@ -24,14 +24,22 @@ func thing() http.Handler {
 		case "GET":
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte("My url: " + r.RequestURI + "\n"))
+			buf, _ := ioutil.ReadAll(r.Body)
+			if len(buf) > 0 {
+				log.Println(string(buf))
+			}
 		case "POST":
 			w.WriteHeader(http.StatusAccepted)
 			buf, _ := ioutil.ReadAll(r.Body)
-			log.Println(string(buf))
+			if len(buf) > 0 {
+				log.Println(string(buf))
+			}
 		case "PUT":
 			w.WriteHeader(http.StatusCreated)
 			buf, _ := ioutil.ReadAll(r.Body)
-			log.Println(string(buf))
+			if len(buf) > 0 {
+				log.Println(string(buf))
+			}
 		case "FILE":
 			newfile := filepath.Base(r.RequestURI)
 			out, err := os.Create(newfile)

@@ -27,11 +27,11 @@ func thing() http.Handler {
 		case "POST":
 			w.WriteHeader(http.StatusAccepted)
 			buf, _ := ioutil.ReadAll(r.Body)
-			w.Write(buf)
+			log.Println(string(buf))
 		case "PUT":
 			w.WriteHeader(http.StatusCreated)
 			buf, _ := ioutil.ReadAll(r.Body)
-			w.Write(buf)
+			log.Println(string(buf))
 		case "FILE":
 			newfile := filepath.Base(r.RequestURI)
 			out, err := os.Create(newfile)

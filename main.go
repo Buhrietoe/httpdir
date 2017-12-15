@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // logger logs all requests
@@ -17,29 +20,37 @@ func logger(next http.Handler) http.Handler {
 	})
 }
 
+func prettyData(data io.ReadCloser, mimetype string) string {
+	var output string
+
+	buf, _ := ioutil.ReadAll(data)
+	if len(buf) > 0 {
+		if strings.Contains(strings.ToLower(mimetype), "application/json") {
+			jsonoutput := new(bytes.Buffer)
+			json.Indent(jsonoutput, buf, "", "  ")
+			output = jsonoutput.String()
+		} else {
+			output = string(buf)
+		}
+	}
+
+	return output
+}
+
 // thing does a thing
 func thing() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":
+			log.Println(prettyData(r.Body, r.Header["Content-Type"][0]))
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte("My url: " + r.RequestURI + "\n"))
-			buf, _ := ioutil.ReadAll(r.Body)
-			if len(buf) > 0 {
-				log.Println(string(buf))
-			}
 		case "POST":
+			log.Println(prettyData(r.Body, r.Header["Content-Type"][0]))
 			w.WriteHeader(http.StatusAccepted)
-			buf, _ := ioutil.ReadAll(r.Body)
-			if len(buf) > 0 {
-				log.Println(string(buf))
-			}
 		case "PUT":
+			log.Println(prettyData(r.Body, r.Header["Content-Type"][0]))
 			w.WriteHeader(http.StatusCreated)
-			buf, _ := ioutil.ReadAll(r.Body)
-			if len(buf) > 0 {
-				log.Println(string(buf))
-			}
 		case "FILE":
 			newfile := filepath.Base(r.RequestURI)
 			out, err := os.Create(newfile)

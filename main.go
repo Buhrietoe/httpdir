@@ -42,7 +42,11 @@ func thing() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":
-			log.Println(prettyData(r.Body, r.Header["Content-Type"][0]))
+			if ct, ok := r.Header["Content-Type"]; ok {
+				log.Println(prettyData(r.Body, ct[0]))
+			} else {
+				log.Println(prettyData(r.Body, "text/plain"))
+			}
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte("My url: " + r.RequestURI + "\n"))
 		case "POST":

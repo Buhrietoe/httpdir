@@ -20,12 +20,12 @@ func logger(next http.Handler) http.Handler {
 	})
 }
 
-func prettyData(data io.ReadCloser, mimetype string) string {
+func prettyData(data io.ReadCloser, contentType string) string {
 	var output string
 
 	buf, _ := ioutil.ReadAll(data)
 	if len(buf) > 0 {
-		if strings.Contains(strings.ToLower(mimetype), "application/json") {
+		if strings.Contains(strings.ToLower(contentType), "application/json") {
 			jsonoutput := new(bytes.Buffer)
 			json.Indent(jsonoutput, buf, "", "  ")
 			output = jsonoutput.String()
@@ -80,6 +80,7 @@ func main() {
 	var err error
 	listenString := ":8080"
 	serveDir, _ := filepath.Abs(".")
+	// Environment variables override defaults
 	if len(os.Getenv("HTTP_ADDR")) > 0 {
 		listenString = os.Getenv("HTTP_ADDR")
 	}
@@ -89,6 +90,7 @@ func main() {
 			log.Fatalf("Unable to parse directory: %s\n", err)
 		}
 	}
+	// Command-line arguments take precedence
 	if len(os.Args) > 1 {
 		listenString = os.Args[1]
 	}

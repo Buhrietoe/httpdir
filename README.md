@@ -8,7 +8,6 @@ Usage:
     httpdir [address:port] [directory]
 
 Roadmap:
-- POST
 - PUT
 - DELETE
 

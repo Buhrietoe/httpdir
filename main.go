@@ -50,10 +50,10 @@ func thing() http.Handler {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte("My url: " + r.RequestURI + "\n"))
 		case "POST":
-			log.Println(prettyData(r.Body, r.Header["Content-Type"][0]))
+			log.Println(prettyData(r.Body, r.Header.Get("Content-Type")))
 			w.WriteHeader(http.StatusAccepted)
 		case "PUT":
-			log.Println(prettyData(r.Body, r.Header["Content-Type"][0]))
+			log.Println(prettyData(r.Body, r.Header.Get("Content-Type")))
 			w.WriteHeader(http.StatusCreated)
 		case "FILE":
 			newfile := filepath.Base(r.RequestURI)

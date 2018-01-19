@@ -10,6 +10,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/Buhrietoe/httpdir/config"
 )
 
 // logger logs all requests
@@ -20,6 +22,7 @@ func logger(next http.Handler) http.Handler {
 	})
 }
 
+// prettyData makes data pretty
 func prettyData(data io.ReadCloser, contentType string) string {
 	var output string
 
@@ -76,41 +79,21 @@ func thing() http.Handler {
 }
 
 func main() {
-	// Defaults
-	var err error
-	listenString := ":8080"
-	serveDir, _ := filepath.Abs(".")
-	// Environment variables override defaults
-	if len(os.Getenv("HTTP_ADDR")) > 0 {
-		listenString = os.Getenv("HTTP_ADDR")
-	}
-	if len(os.Getenv("HTTP_DIR")) > 0 {
-		serveDir, err = filepath.Abs(os.Getenv("HTTP_DIR"))
-		if err != nil {
-			log.Fatalf("Unable to parse directory: %s\n", err)
-		}
-	}
-	// Command-line arguments take precedence
-	if len(os.Args) > 1 {
-		listenString = os.Args[1]
-	}
-	if len(os.Args) > 2 {
-		serveDir, _ = filepath.Abs(os.Args[2])
-	}
+	config := config.Load()
 
-	// Start info
+	// Startup info
 	log.Printf("Usage: %s [address:port] [directory]", filepath.Base(os.Args[0]))
-	log.Printf("Listening on: %s", listenString)
-	log.Printf("Serving from: %s", serveDir)
+	log.Printf("Listening on: %s", config.ListenString)
+	log.Printf("Serving from: %s", config.ServeDir)
 
 	// Map routes
 	mux := http.NewServeMux()
-	fs := http.FileServer(http.Dir(serveDir))
+	fs := http.FileServer(http.Dir(config.ServeDir))
 	mux.Handle("/files/", http.StripPrefix("/files/", fs))
 	mux.Handle("/", thing())
 
 	// Serve it up
-	err = http.ListenAndServe(listenString, logger(mux))
+	err := http.ListenAndServe(config.ListenString, logger(mux))
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -7,15 +7,14 @@ import (
 )
 
 // Config contains config for the webserver
-type Config struct {
+type ServerConfig struct {
 	ListenString string
 	ServeDir     string
 }
 
 // Load gets configuration details for the webserver
-func Load() (config Config) {
+func Load() (config ServerConfig, err error) {
 	// Defaults
-	var err error
 	config.ListenString = ":8080"
 	config.ServeDir, err = filepath.Abs(".")
 
@@ -38,5 +37,5 @@ func Load() (config Config) {
 		config.ServeDir, _ = filepath.Abs(os.Args[2])
 	}
 
-	return config
+	return config, err
 }

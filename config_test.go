@@ -1,4 +1,4 @@
-package config
+package main
 
 import (
 	"os"
@@ -14,7 +14,10 @@ func TestLoad(t *testing.T) {
 		t.Error(err)
 	}
 
-	config := Load()
+	config, err := loadConfig()
+	if err != nil {
+		t.Error(err)
+	}
 
 	if config.ListenString != testListenString {
 		t.Errorf("expected :8080, got %v", config.ListenString)

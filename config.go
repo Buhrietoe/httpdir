@@ -1,4 +1,4 @@
-package config
+package main
 
 import (
 	"log"
@@ -7,13 +7,13 @@ import (
 )
 
 // Config contains config for the webserver
-type ServerConfig struct {
+type serverConfig struct {
 	ListenString string
 	ServeDir     string
 }
 
 // Load gets configuration details for the webserver
-func Load() (config ServerConfig, err error) {
+func loadConfig() (config serverConfig, err error) {
 	// Defaults
 	config.ListenString = ":8080"
 	config.ServeDir, err = filepath.Abs(".")

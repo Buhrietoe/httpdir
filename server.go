@@ -1,4 +1,4 @@
-package server
+package main
 
 import (
 	"io"
@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-
-	"github.com/Buhrietoe/httpdir/config"
 )
 
 // logger logs all requests
@@ -49,7 +47,7 @@ func fileHandler(root string) http.Handler {
 }
 
 // Start the webserver using specified config
-func Start(config config.ServerConfig) {
+func startServer(config serverConfig) {
 	// Startup info
 	log.Printf("Usage: %s [address:port] [directory]", filepath.Base(os.Args[0]))
 	log.Printf("Listening on: %s", config.ListenString)

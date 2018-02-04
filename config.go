@@ -6,14 +6,14 @@ import (
 	"path/filepath"
 )
 
-// Config contains config for the webserver
-type serverConfig struct {
+// ServerConfig contains config for the webserver
+type ServerConfig struct {
 	ListenString string
 	ServeDir     string
 }
 
-// Load gets configuration details for the webserver
-func loadConfig() (config serverConfig, err error) {
+// LoadConfig gets configuration details for the webserver
+func LoadConfig() (config ServerConfig, err error) {
 	// Defaults
 	config.ListenString = ":8080"
 	config.ServeDir, err = filepath.Abs(".")

@@ -46,8 +46,8 @@ func fileHandler(root string) http.Handler {
 	})
 }
 
-// Start the webserver using specified config
-func startServer(config serverConfig) {
+// StartServer starts the webserver using specified config
+func StartServer(config ServerConfig) {
 	// Startup info
 	log.Printf("Usage: %s [address:port] [directory]", filepath.Base(os.Args[0]))
 	log.Printf("Listening on: %s", config.ListenString)

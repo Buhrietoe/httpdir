@@ -5,16 +5,16 @@ import (
 	"testing"
 )
 
-func TestLoad(t *testing.T) {
-	var testListenString string = ":8080"
-	var testServeDir string = "/test/path"
+func TestLoadConfig(t *testing.T) {
+	var testListenString = ":8080"
+	var testServeDir = "/test/path"
 
 	err := os.Setenv("HTTP_DIR", testServeDir)
 	if err != nil {
 		t.Error(err)
 	}
 
-	config, err := loadConfig()
+	config, err := LoadConfig()
 	if err != nil {
 		t.Error(err)
 	}

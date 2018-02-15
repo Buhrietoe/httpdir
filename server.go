@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html/template"
 	"io"
 	"log"
 	"net/http"
@@ -8,7 +9,18 @@ import (
 	"path/filepath"
 )
 
-// logger logs all requests
+const page string = `<html>
+<head>
+<style type="text/css">
+	body { color: white; background: black; }
+</style>
+</head>
+<body>
+<div>Things!</div>
+</body>
+</html>`
+
+// logger logs all requests to stdout
 func logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s %s %s", r.RemoteAddr, r.Method, r.URL)
@@ -22,7 +34,12 @@ func fileHandler(root string) http.Handler {
 		switch r.Method {
 		case "GET":
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("GET: " + r.RequestURI + "\n"))
+			t, err := template.New("listing").Parse(page)
+			if err != nil {
+				log.Printf("Problem generating template: %s", err)
+			}
+			err = t.Execute(w, "")
+			//w.Write([]byte("GET: " + r.RequestURI + "\n"))
 		case "POST":
 			w.WriteHeader(http.StatusAccepted)
 		case "PUT":
@@ -56,8 +73,8 @@ func StartServer(config ServerConfig) {
 	// Map routes
 	mux := http.NewServeMux()
 	fs := http.FileServer(http.Dir(config.ServeDir))
-	mux.Handle("/files/", http.StripPrefix("/files/", fs))
 	mux.Handle("/", fileHandler(config.ServeDir))
+	mux.Handle("/fallback/", http.StripPrefix("/fallback/", fs))
 
 	// Serve it up
 	err := http.ListenAndServe(config.ListenString, logger(mux))

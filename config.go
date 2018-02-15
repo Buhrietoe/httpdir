@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"errors"
 	"os"
 	"path/filepath"
 )
@@ -25,7 +25,7 @@ func LoadConfig() (config ServerConfig, err error) {
 	if len(os.Getenv("HTTP_DIR")) > 0 {
 		config.ServeDir, err = filepath.Abs(os.Getenv("HTTP_DIR"))
 		if err != nil {
-			log.Fatalf("Unable to parse directory: %s\n", err)
+			return config, err
 		}
 	}
 
@@ -37,5 +37,18 @@ func LoadConfig() (config ServerConfig, err error) {
 		config.ServeDir, _ = filepath.Abs(os.Args[2])
 	}
 
-	return config, err
+	// Validate path given
+	if pathExists(config.ServeDir) {
+		return config, err
+	}
+
+	return config, errors.New("Path does not exist: " + config.ServeDir)
+}
+
+func pathExists(path string) bool {
+	info, err := os.Stat(path)
+	if err == nil && info.IsDir() {
+		return true
+	}
+	return false
 }

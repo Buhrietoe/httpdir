@@ -1,13 +1,25 @@
 package main
 
 import (
-	"html/template"
-	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/gin-gonic/gin"
 )
+
+// File represents a file
+type File struct {
+	Name string
+	Size int
+}
+
+// IndexModel of file listing
+type IndexModel struct {
+	CurrentPath string
+	Files       []File
+}
 
 const page string = `<html>
 <head>
@@ -16,7 +28,7 @@ const page string = `<html>
 </style>
 </head>
 <body>
-<div>Things!</div>
+<div>{{ .Text }}</div>
 </body>
 </html>`
 
@@ -28,40 +40,59 @@ func logger(next http.Handler) http.Handler {
 	})
 }
 
-// fileHandler triages downloading/uploading
-func fileHandler(root string) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case "GET":
-			w.WriteHeader(http.StatusOK)
-			t, err := template.New("listing").Parse(page)
-			if err != nil {
-				log.Printf("Problem generating template: %s", err)
-			}
-			err = t.Execute(w, "")
-			//w.Write([]byte("GET: " + r.RequestURI + "\n"))
-		case "POST":
-			w.WriteHeader(http.StatusAccepted)
-		case "PUT":
-			w.WriteHeader(http.StatusCreated)
-		case "TEST":
-			newfile := filepath.Base(r.RequestURI)
-			out, err := os.Create(newfile)
-			if err != nil {
-				log.Println(err)
-			}
-			defer out.Close()
+// getFile sends a file or file index
+func getFile(c *gin.Context) {
+	resp := make(map[string]interface{})
 
-			if _, err := io.Copy(out, r.Body); err != nil {
-				log.Println("Things happened during upload...")
-			}
-			out.Sync()
-			w.WriteHeader(http.StatusCreated)
-		default:
-			w.WriteHeader(http.StatusBadRequest)
-		}
-	})
+	resp["status"] = "OK"
+
+	c.JSON(http.StatusOK, resp)
 }
+
+// putFile retrieves a file
+func putFile(w http.ResponseWriter, r *http.Request, root string) {
+	// stuff
+}
+
+// deleteFile deletes a file
+func deleteFile(w http.ResponseWriter, r *http.Request, root string) {
+	// stuff
+}
+
+// fileHandler triages downloading/uploading
+//func fileHandler(root string) http.Handler {
+//return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+//switch r.Method {
+//case "GET":
+//w.WriteHeader(http.StatusOK)
+//t, err := template.New("listing").Parse(page)
+//if err != nil {
+//log.Printf("Problem generating template: %s", err)
+//}
+//m := IndexModel{CurrentPath: "my path"}
+//err = t.Execute(w, &m)
+//case "POST":
+//w.WriteHeader(http.StatusAccepted)
+//case "PUT":
+//w.WriteHeader(http.StatusCreated)
+//case "TEST":
+//newfile := filepath.Base(r.RequestURI)
+//out, err := os.Create(newfile)
+//if err != nil {
+//log.Println(err)
+//}
+//defer out.Close()
+
+//if _, err := io.Copy(out, r.Body); err != nil {
+//log.Println("Things happened during upload...")
+//}
+//out.Sync()
+//w.WriteHeader(http.StatusCreated)
+//default:
+//w.WriteHeader(http.StatusBadRequest)
+//}
+//})
+//}
 
 // StartServer starts the webserver using specified config
 func StartServer(config ServerConfig) {
@@ -70,15 +101,24 @@ func StartServer(config ServerConfig) {
 	log.Printf("Listening on: %s", config.ListenString)
 	log.Printf("Serving from: %s", config.ServeDir)
 
+	r := gin.Default()
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "pong",
+		})
+	})
+	r.GET("/files", getFile)
+	r.Run(config.ListenString)
+
 	// Map routes
-	mux := http.NewServeMux()
-	fs := http.FileServer(http.Dir(config.ServeDir))
-	mux.Handle("/", fileHandler(config.ServeDir))
-	mux.Handle("/fallback/", http.StripPrefix("/fallback/", fs))
+	//mux := http.NewServeMux()
+	//fs := http.FileServer(http.Dir(config.ServeDir))
+	//mux.Handle("/", fileHandler(config.ServeDir))
+	//mux.Handle("/fallback/", http.StripPrefix("/fallback/", fs))
 
 	// Serve it up
-	err := http.ListenAndServe(config.ListenString, logger(mux))
-	if err != nil {
-		log.Fatalln(err)
-	}
+	//err := http.ListenAndServe(config.ListenString, logger(mux))
+	//if err != nil {
+	//log.Fatalln(err)
+	//}
 }

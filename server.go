@@ -15,8 +15,8 @@ type File struct {
 	Size int
 }
 
-// IndexModel of file listing
-type IndexModel struct {
+// indexModel of file listing
+type indexModel struct {
 	CurrentPath string
 	Files       []File
 }
@@ -33,29 +33,36 @@ const page string = `<html>
 </html>`
 
 // logger logs all requests to stdout
-func logger(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("%s %s %s", r.RemoteAddr, r.Method, r.URL)
-		next.ServeHTTP(w, r)
-	})
-}
+//func logger(next http.Handler) http.Handler {
+//return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+//log.Printf("%s %s %s", r.RemoteAddr, r.Method, r.URL)
+//next.ServeHTTP(w, r)
+//})
+//}
 
 // getFile sends a file or file index
 func getFile(c *gin.Context) {
 	resp := make(map[string]interface{})
 
-	resp["status"] = "OK"
+	//resp["status"] = "OK"
+	resp["request"], _ = c.GetRawData()
+	resp["debug"] = c.Params
 
 	c.JSON(http.StatusOK, resp)
 }
 
 // putFile retrieves a file
-func putFile(w http.ResponseWriter, r *http.Request, root string) {
+func putFile(c *gin.Context) {
+	// stuff
+}
+
+// postFile retrieves a file
+func postFile(c *gin.Context) {
 	// stuff
 }
 
 // deleteFile deletes a file
-func deleteFile(w http.ResponseWriter, r *http.Request, root string) {
+func deleteFile(c *gin.Context) {
 	// stuff
 }
 
@@ -69,7 +76,7 @@ func deleteFile(w http.ResponseWriter, r *http.Request, root string) {
 //if err != nil {
 //log.Printf("Problem generating template: %s", err)
 //}
-//m := IndexModel{CurrentPath: "my path"}
+//m := indexModel{CurrentPath: "my path"}
 //err = t.Execute(w, &m)
 //case "POST":
 //w.WriteHeader(http.StatusAccepted)
@@ -102,12 +109,16 @@ func StartServer(config ServerConfig) {
 	log.Printf("Serving from: %s", config.ServeDir)
 
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
-	r.GET("/files", getFile)
+	r.GET("/", getFile)
+	r.PUT("/:path", putFile)
+	r.POST("/:path", postFile)
+
+	//r.GET("/ping", func(c *gin.Context) {
+	//c.JSON(http.StatusOK, gin.H{
+	//"message": "pong",
+	//})
+	//})
+
 	r.Run(config.ListenString)
 
 	// Map routes

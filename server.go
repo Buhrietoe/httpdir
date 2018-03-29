@@ -44,8 +44,8 @@ const page string = `<html>
 func getFile(c *gin.Context) {
 	resp := make(map[string]interface{})
 
-	//resp["status"] = "OK"
-	resp["request"], _ = c.GetRawData()
+	resp["status"] = "OK"
+	resp["request"] = c.Request.Body
 	resp["debug"] = c.Params
 
 	c.JSON(http.StatusOK, resp)
@@ -53,17 +53,17 @@ func getFile(c *gin.Context) {
 
 // putFile retrieves a file
 func putFile(c *gin.Context) {
-	// stuff
+	c.JSON(http.StatusNotImplemented, nil)
 }
 
 // postFile retrieves a file
 func postFile(c *gin.Context) {
-	// stuff
+	c.JSON(http.StatusNotImplemented, nil)
 }
 
 // deleteFile deletes a file
 func deleteFile(c *gin.Context) {
-	// stuff
+	c.JSON(http.StatusNotImplemented, nil)
 }
 
 // fileHandler triages downloading/uploading
@@ -110,26 +110,14 @@ func StartServer(config ServerConfig) {
 
 	r := gin.Default()
 	r.GET("/", getFile)
-	r.PUT("/:path", putFile)
-	r.POST("/:path", postFile)
+	r.PUT("/", putFile)
+	r.POST("/", postFile)
 
-	//r.GET("/ping", func(c *gin.Context) {
-	//c.JSON(http.StatusOK, gin.H{
-	//"message": "pong",
-	//})
-	//})
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "pong",
+		})
+	})
 
 	r.Run(config.ListenString)
-
-	// Map routes
-	//mux := http.NewServeMux()
-	//fs := http.FileServer(http.Dir(config.ServeDir))
-	//mux.Handle("/", fileHandler(config.ServeDir))
-	//mux.Handle("/fallback/", http.StripPrefix("/fallback/", fs))
-
-	// Serve it up
-	//err := http.ListenAndServe(config.ListenString, logger(mux))
-	//if err != nil {
-	//log.Fatalln(err)
-	//}
 }
